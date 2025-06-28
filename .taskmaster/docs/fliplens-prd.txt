@@ -1,0 +1,105 @@
+# FlipLens Product Requirements Document (PRD)
+
+## 📝 Project Overview
+**Product Name**: FlipLens  
+**Type**: Web application (React frontend + Flask backend)  
+**Purpose**: FlipLens helps thrift resellers rapidly evaluate the resale potential of clothing items by retrieving market data from eBay, calculating net profits, and displaying data confidence indicators to guide profitable purchasing decisions.
+
+## 🎯 Problem Statement
+Thrift resellers spend excessive time manually researching items on multiple platforms to determine if a clothing item is worth buying for resale. They need a fast, reliable, and simple tool to:
+- Evaluate potential resale value while in-store
+- Calculate net profit after fees
+- Make data-driven decisions efficiently
+
+## 🌟 Goals & Objectives
+- Allow users to search for clothing items by keyword
+- Fetch market data from eBay for those items
+- Calculate estimated net profit after platform fees and shipping
+- Provide data confidence indicators (e.g. number of active vs sold listings)
+- Enable users to save profitable items for later review
+- Build a responsive web app optimized for mobile and desktop
+
+## 💻 Core Features (MVP)
+
+### ✅ 1. Search Screen
+- Input: Text search bar for keywords (brand, item type, model)
+- Action: Calls backend API to fetch results from eBay
+
+### ✅ 2. Results Screen
+Displays:
+- Item title
+- Thumbnail image
+- Average market price
+- Lowest and highest listing prices
+- Suggested resale price (configurable formula)
+- Estimated net profit after fees (based on eBay fee structure)
+- Data confidence indicator:
+  - Number of active listings
+  - Number of sold listings
+  - Sell-through ratio (sold/active)
+
+### ✅ 3. Saved Items Screen
+- Ability to save an item from Results Screen
+- Displays list of saved items with:
+  - Thumbnail
+  - Item title
+  - Estimated net profit
+  - Quick delete option
+
+### ✅ 4. Settings / About Page
+- Static page with app description, instructions, and future roadmap teaser
+
+## 🖥 Technical Requirements
+- **Frontend**: React.js with Tailwind CSS for styling
+- **Backend**: Python Flask API
+- **Database**: SQLite for storing saved items locally
+- **APIs**: eBay Finding API for item search and data retrieval
+- **Hosting** (later stages): Vercel (frontend) + Render or Railway (backend) or combined deployment on AWS EC2
+
+## ⚙️ Non-Functional Requirements
+- Responsive design for mobile (primary) and desktop
+- Clean UI/UX with minimal cognitive load
+- Fast load times (<2s for data fetch)
+- Robust error handling for failed API calls
+- Secure storage of API keys (use environment variables)
+
+## 🛑 Out of Scope for MVP
+- User authentication and accounts
+- Multi-platform data aggregation (Poshmark, Depop)
+- Advanced image recognition / scanning (future feature)
+- Detailed analytics dashboard
+
+## 📌 Future Roadmap (Post-MVP)
+- Image scanning and computer vision-based item recognition
+- Multi-platform integration (Poshmark, Depop)
+- User authentication with cloud storage of saved items
+- Price tracking alerts
+- Mobile app version (React Native or Flutter)
+
+## 📅 Milestones & Timeline
+| Milestone | Description | Target Date |
+|-----------|-------------|-------------|
+| Environment Setup | Install dependencies, set up repo | Day 1 |
+| Backend API Development | Flask server + eBay API integration | Days 2-5 |
+| Frontend UI Development | React pages, Tailwind setup | Days 6-10 |
+| Frontend-Backend Integration | Axios calls, data rendering | Days 11-14 |
+| Saved Items Feature | SQLite CRUD operations | Days 15-18 |
+| Testing & Debugging | Manual testing + refinements | Days 19-20 |
+| MVP Launch | Deploy to production | Day 21 |
+
+## 📝 Acceptance Criteria
+- ✅ User can search for an item and receive data
+- ✅ Results display market prices, profit estimation, and confidence metrics
+- ✅ User can save an item and view it later
+- ✅ App is responsive and loads within 2 seconds
+- ✅ No critical bugs in core flows
+
+## 🙋 Stakeholders
+- **Product Owner**: Arezzio Rietti
+- **Development**: Arezzio Rietti
+- **Advisors**: ChatGPT task planning + Cursor AI guidance
+
+## 📎 Attachments / References
+- eBay Developer Documentation: Finding API
+- Tailwind CSS Docs: https://tailwindcss.com/docs
+- React Docs: https://reactjs.org/docs/getting-started.html 

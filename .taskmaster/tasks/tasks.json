@@ -1,0 +1,258 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Set up Project Environment",
+        "description": "Install dependencies, set up repository, and configure development tools.",
+        "details": "npm init, yarn install, create-react-app, etc.",
+        "testStrategy": "Manual testing of environment setup",
+        "priority": "high",
+        "dependencies": [],
+        "status": "in-progress",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Initialize Project",
+            "description": "Run npm init to create a new project and set up the basic structure.",
+            "dependencies": [],
+            "details": "Use npm init to create a new project, then follow the prompts to set up the project name, version, and author.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Install Dependencies",
+            "description": "Run yarn install or npm install to install the required dependencies for the project.",
+            "dependencies": [
+              1
+            ],
+            "details": "Use yarn install or npm install to install the dependencies listed in the package.json file.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Set up Repository",
+            "description": "Create a new repository on GitHub or another version control system and link it to the project.",
+            "dependencies": [
+              2
+            ],
+            "details": "Create a new repository, then add the remote tracking branch by running git remote add origin <repository-url>.",
+            "status": "in-progress",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Configure Development Tools",
+            "description": "Set up development tools such as code editors and debuggers to work with the project.",
+            "dependencies": [
+              3
+            ],
+            "details": "Install and configure your preferred code editor, debugger, and other development tools.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Verify Project Setup",
+            "description": "Run tests or verify that the project is set up correctly by running a simple command.",
+            "dependencies": [
+              4
+            ],
+            "details": "Run npm test or yarn test to verify that the project is set up correctly and all dependencies are installed.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Develop Backend API with Flask",
+        "description": "Create a Flask server and integrate the eBay Finding API.",
+        "details": "Flask app setup, eBay API integration, error handling",
+        "testStrategy": "Manual testing of API endpoints",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 3,
+        "title": "Implement Search Screen with React",
+        "description": "Create a search bar and call the backend API to fetch results.",
+        "details": "React component setup, Axios calls, data rendering",
+        "testStrategy": "Manual testing of search functionality",
+        "priority": "medium",
+        "dependencies": [
+          2
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 4,
+        "title": "Develop Results Screen with React",
+        "description": "Display item title, thumbnail image, market prices, and confidence metrics.",
+        "details": "React component setup, data rendering, styling",
+        "testStrategy": "Manual testing of results display",
+        "priority": "medium",
+        "dependencies": [
+          3
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 5,
+        "title": "Implement Saved Items Screen with React",
+        "description": "Allow users to save items and view saved items later.",
+        "details": "React component setup, SQLite CRUD operations, data rendering",
+        "testStrategy": "Manual testing of saved items feature",
+        "priority": "medium",
+        "dependencies": [
+          4
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 6,
+        "title": "Develop Settings / About Page with React",
+        "description": "Create a static page with app description, instructions, and future roadmap teaser.",
+        "details": "React component setup, data rendering, styling",
+        "testStrategy": "Manual testing of settings page",
+        "priority": "low",
+        "dependencies": [
+          4
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 7,
+        "title": "Implement Responsive Design for Mobile and Desktop",
+        "description": "Ensure the app is responsive and loads within 2 seconds.",
+        "details": "Tailwind CSS setup, media queries, performance optimization",
+        "testStrategy": "Manual testing of responsiveness and load times",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 8,
+        "title": "Implement Error Handling for Failed API Calls",
+        "description": "Handle errors and exceptions when calling the eBay Finding API.",
+        "details": "Error handling setup, try-catch blocks, logging",
+        "testStrategy": "Manual testing of error handling",
+        "priority": "high",
+        "dependencies": [
+          2
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 9,
+        "title": "Implement Secure Storage of API Keys",
+        "description": "Store API keys securely using environment variables.",
+        "details": "Environment variable setup, secure storage implementation",
+        "testStrategy": "Manual testing of secure key storage",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 10,
+        "title": "Implement SQLite CRUD Operations for Saved Items",
+        "description": "Create a SQLite database and implement CRUD operations for saved items.",
+        "details": "SQLite setup, CRUD operations implementation, data rendering",
+        "testStrategy": "Manual testing of CRUD operations",
+        "priority": "medium",
+        "dependencies": [
+          5
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 11,
+        "title": "Implement Price Tracking Alerts (Future Feature)",
+        "description": "Create a feature to track price changes and send alerts.",
+        "details": "Price tracking setup, alert system implementation",
+        "testStrategy": "Manual testing of price tracking feature",
+        "priority": "low",
+        "dependencies": [
+          4
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 12,
+        "title": "Implement Multi-Platform Integration (Future Feature)",
+        "description": "Integrate with multiple platforms, such as Poshmark and Depop.",
+        "details": "API integration setup, data rendering, styling",
+        "testStrategy": "Manual testing of multi-platform integration",
+        "priority": "low",
+        "dependencies": [
+          4
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 13,
+        "title": "Implement User Authentication with Cloud Storage (Future Feature)",
+        "description": "Create a user authentication system and store saved items in the cloud.",
+        "details": "Authentication setup, cloud storage implementation",
+        "testStrategy": "Manual testing of user authentication feature",
+        "priority": "low",
+        "dependencies": [
+          4
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 14,
+        "title": "Implement Mobile App Version (Future Feature)",
+        "description": "Create a mobile app version using React Native or Flutter.",
+        "details": "Mobile app setup, data rendering, styling",
+        "testStrategy": "Manual testing of mobile app feature",
+        "priority": "low",
+        "dependencies": [
+          4
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 15,
+        "title": "Test and Debug the App",
+        "description": "Perform manual testing and debugging to ensure the app meets acceptance criteria.",
+        "details": "Testing setup, debugging implementation",
+        "testStrategy": "Manual testing of core flows",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
+        "subtasks": []
+      }
+    ],
+    "metadata": {
+      "created": "2025-06-28T16:47:24.879Z",
+      "updated": "2025-06-28T17:12:48.660Z",
+      "description": "Tasks for master context"
+    }
+  }
+}
