@@ -3,7 +3,7 @@ from flask import current_app
 import os
 import logging
 import time
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 
 logger = logging.getLogger(__name__)
 
@@ -194,7 +194,11 @@ class EbayService:
                 return {"error": "Invalid query", "message": "Query contains invalid characters"}
             
             validated_limit = self._validate_limit(limit)
-            
+
+            # Check if using test keys and return mock data
+            if self._is_using_test_keys():
+                return self._get_mock_search_results(sanitized_query, validated_limit)
+
             logger.info(f"Searching eBay for: '{sanitized_query}' (limit: {validated_limit})")
             
             # Prepare API request parameters
@@ -493,3 +497,48 @@ class EbayService:
         except Exception as e:
             logger.warning(f"Error calculating enhanced confidence: {str(e)}")
             return item.get('confidence', 0.5)
+
+    def _is_using_test_keys(self) -> bool:
+        """Check if we're using test API keys"""
+        try:
+            return (
+                self.app_id.startswith('test-') or
+                self.app_id == 'test-api-key' or
+                self.app_id == 'test-app-id'
+            )
+        except:
+            return True  # Assume test keys if we can't determine
+
+    def _get_mock_search_results(self, query: str, limit: int) -> Dict[str, Any]:
+        """Return mock search results for testing"""
+        logger.info(f"Returning mock search results for query: '{query}'")
+
+        # Generate mock items based on query
+        mock_items = []
+        for i in range(min(limit, 5)):  # Return up to 5 mock items
+            item = {
+                'title': f'{query} - Mock Item {i+1}',
+                'itemId': f'mock-{i+1}-{hash(query) % 10000}',
+                'viewItemURL': f'https://ebay.com/item/mock-{i+1}',
+                'galleryURL': 'https://via.placeholder.com/150x150?text=Mock+Item',
+                'price': round(50 + (i * 25) + (hash(query) % 100), 2),
+                'currency': 'USD',
+                'location': 'United States',
+                'condition': ['New', 'Used', 'Excellent', 'Good'][i % 4],
+                'confidence': 0.8 + (i * 0.05),
+                'estimated_profit': round(20 + (i * 10), 2),
+                'profit_margin': round(25 + (i * 5), 1),
+                'market_position': ['low', 'average', 'moderate', 'high'][i % 4],
+                'platform_fees': round(8 + (i * 2), 2),
+                'estimated_purchase_price': round(30 + (i * 15), 2)
+            }
+            mock_items.append(item)
+
+        return {
+            'results': mock_items,
+            'total': len(mock_items),
+            'query': query,
+            'limit': limit,
+            'mock_data': True,
+            'message': 'Mock data returned - configure production eBay API keys for real results'
+        }

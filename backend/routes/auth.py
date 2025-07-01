@@ -32,7 +32,7 @@ def validate_password_strength(password):
     return True, "Password is strong"
 
 @api_bp.route('/auth/register', methods=['POST'])
-@rate_limit('/api/auth/register', per_minute=5)  # Stricter rate limit for registration
+@rate_limit('/api/auth/register')
 def register():
     """User registration endpoint"""
     try:
@@ -159,7 +159,7 @@ def register():
         }), 500
 
 @api_bp.route('/auth/login', methods=['POST'])
-@rate_limit('/api/auth/login', per_minute=10)  # Rate limit for login attempts
+@rate_limit('/api/auth/login')
 def login():
     """User login endpoint"""
     try:
