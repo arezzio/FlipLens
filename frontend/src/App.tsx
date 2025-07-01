@@ -1,14 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './App.css';
 import { SearchScreen } from './components/SearchScreen';
 import { SavedItems } from './components/SavedItems';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { AuthModal } from './components/auth/AuthModal';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 
-function App() {
+const AppContent: React.FC = () => {
+  const { user, isAuthenticated, logout } = useAuth();
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+
+  const handleAuthClick = (mode: 'login' | 'register') => {
+    setAuthMode(mode);
+    setAuthModalOpen(true);
+  };
+
   return (
-    <ErrorBoundary>
-      <Router>
+    <Router>
         {/* StockX-style Navigation Bar */}
         <nav className="sticky top-0 z-50 bg-white border-b border-neutral-200 flex items-center justify-between px-4 sm:px-8 lg:px-16 h-20">
           {/* Logo and Tagline */}
@@ -34,8 +44,37 @@ function App() {
             <button className="text-base font-medium text-neutral-400 hover:text-stockx-500 transition-colors cursor-not-allowed" disabled>Profile</button>
             <button className="text-base font-medium text-neutral-400 hover:text-stockx-500 transition-colors cursor-not-allowed" disabled>Settings</button>
           </div>
-          {/* Get Started Button */}
-          <button className="ml-4 px-6 py-2 rounded-lg bg-stockx-500 text-white font-semibold text-base shadow-stockx-md hover:bg-stockx-600 transition-colors">Get Started</button>
+          {/* Auth Buttons */}
+          <div className="ml-4 flex items-center space-x-3">
+            {isAuthenticated ? (
+              <div className="flex items-center space-x-3">
+                <span className="text-sm text-neutral-600">
+                  Welcome, {user?.first_name || user?.username}!
+                </span>
+                <button
+                  onClick={logout}
+                  className="px-4 py-2 text-neutral-700 hover:text-stockx-500 font-medium transition-colors"
+                >
+                  Sign Out
+                </button>
+              </div>
+            ) : (
+              <>
+                <button
+                  onClick={() => handleAuthClick('login')}
+                  className="px-4 py-2 text-neutral-700 hover:text-stockx-500 font-medium transition-colors"
+                >
+                  Sign In
+                </button>
+                <button
+                  onClick={() => handleAuthClick('register')}
+                  className="px-6 py-2 rounded-lg bg-stockx-500 text-white font-semibold text-base shadow-stockx-md hover:bg-stockx-600 transition-colors"
+                >
+                  Get Started
+                </button>
+              </>
+            )}
+          </div>
         </nav>
         {/* Main Content Area */}
         <div className="min-h-screen bg-neutral-50 safe-area-padding">
@@ -44,7 +83,23 @@ function App() {
             <Route path="/saved" element={<SavedItems />} />
           </Routes>
         </div>
+
+        {/* Auth Modal */}
+        <AuthModal
+          isOpen={authModalOpen}
+          onClose={() => setAuthModalOpen(false)}
+          initialMode={authMode}
+        />
       </Router>
+    );
+};
+
+function App() {
+  return (
+    <ErrorBoundary>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
     </ErrorBoundary>
   );
 }

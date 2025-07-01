@@ -35,6 +35,20 @@ const apiClient = axios.create({
   },
 });
 
+// Add auth token to requests
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('fliplens_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 // Enhanced error categorization
 const categorizeError = (error: AxiosError): ApiError => {
   const timestamp = new Date().toISOString();
@@ -345,5 +359,43 @@ export const apiService = {
       return (rateLimitError.retryAfter || 60) * 1000;
     }
     return DEFAULT_RETRY_CONFIG.retryDelay;
-  }
+  },
+
+  // Authentication endpoints
+  login: async (email: string, password: string): Promise<any> => {
+    return retryRequest(async () => {
+      const response = await apiClient.post('/auth/login', {
+        email,
+        password
+      });
+      return response.data;
+    });
+  },
+
+  register: async (userData: {
+    email: string;
+    username: string;
+    password: string;
+    first_name?: string;
+    last_name?: string;
+  }): Promise<any> => {
+    return retryRequest(async () => {
+      const response = await apiClient.post('/auth/register', userData);
+      return response.data;
+    });
+  },
+
+  getCurrentUser: async (): Promise<any> => {
+    return retryRequest(async () => {
+      const response = await apiClient.get('/auth/me');
+      return response.data;
+    });
+  },
+
+  logout: async (): Promise<any> => {
+    return retryRequest(async () => {
+      const response = await apiClient.post('/auth/logout');
+      return response.data;
+    });
+  },
 };

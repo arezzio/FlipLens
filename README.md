@@ -32,22 +32,77 @@ FlipLens/
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js (for frontend)
+- Node.js 16+ (for frontend)
 - Python 3.8+ (for backend)
 - eBay Developer Account (for API access)
+- PostgreSQL or SQLite (for database)
 
-### Installation
-1. Clone the repository
-2. Set up the frontend (see `frontend/README.md`)
-3. Set up the backend (see `backend/README.md`)
-4. Configure environment variables
+### Quick Setup (Development)
+```bash
+# Clone the repository
+git clone https://github.com/your-username/FlipLens.git
+cd FlipLens
+
+# Install all dependencies
+npm run install:all
+
+# Set up environment variables
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
+
+# Edit the .env files with your eBay API keys and configuration
+
+# Start development servers
+npm run dev
+```
+
+### Production Setup
+For production deployment, use the automated setup script:
+
+```bash
+# Make the setup script executable
+chmod +x scripts/production-setup.sh
+
+# Run the production setup
+./scripts/production-setup.sh
+```
+
+See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) for detailed production deployment instructions.
+
+## ✨ Features
+
+### Core Functionality
+- **🔍 Advanced Search**: Search eBay with intelligent filtering and sorting
+- **💰 Profit Calculator**: Automatic profit estimation with platform fees
+- **📊 Market Analysis**: Confidence scores and market position indicators
+- **💾 Save Items**: Personal collection with notes and tags
+- **👤 User Authentication**: Secure registration and login system
+- **📱 Responsive Design**: Works perfectly on mobile and desktop
+
+### Business Intelligence
+- **Market Position Analysis**: Compare prices against market averages
+- **Confidence Scoring**: Data reliability indicators for better decisions
+- **Profit Margins**: Calculate estimated profits after all fees
+- **Search History**: Track your research and popular queries
+
+### Technical Features
+- **Real-time Data**: Live eBay API integration
+- **Secure Backend**: JWT authentication with rate limiting
+- **Database Persistence**: PostgreSQL/SQLite with full CRUD operations
+- **Production Ready**: Complete deployment configuration
+- **Comprehensive Testing**: Automated test suite for all functionality
 
 ## 📋 Development Status
 
-This project is managed with Taskmaster. Current tasks and progress can be viewed with:
-```bash
-task-master list
-```
+✅ **Completed Features:**
+- User authentication system
+- eBay API integration with profit calculations
+- Database models and persistence
+- Frontend with modern React/TypeScript
+- Production deployment configuration
+- Comprehensive testing suite
+
+🚀 **Ready for Production!**
 
 ## 📝 License
 

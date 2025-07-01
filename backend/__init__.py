@@ -40,7 +40,17 @@ def create_app(test_config=None):
     # Configure CORS with proper origins
     cors_origins = app.config.get('CORS_ORIGINS', ['http://localhost:3000'])
     CORS(app, origins=cors_origins)
-    
+
+    # Initialize database
+    try:
+        from models.database import init_db
+        init_db(app)
+        logger.info("Database initialized successfully")
+    except Exception as e:
+        logger.error(f"Failed to initialize database: {str(e)}")
+        if config_name == 'production':
+            raise
+
     # Ensure the instance folder exists
     try:
         os.makedirs(app.instance_path)
