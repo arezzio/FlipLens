@@ -244,9 +244,12 @@ class EbayService:
                 
                 logger.info(f"Search completed successfully. Found {len(results)} items")
                 
+                # Enhance results with profit calculations and confidence scores
+                enhanced_results = self._enhance_results_with_analysis(results)
+
                 return {
-                    'results': results,
-                    'total': len(results),
+                    'results': enhanced_results,
+                    'total': len(enhanced_results),
                     'query': sanitized_query,
                     'limit': validated_limit
                 }
@@ -333,4 +336,160 @@ class EbayService:
         if len(value) > 500:  # Limit length
             value = value[:500]
         
-        return value 
+        return value
+
+    def _enhance_results_with_analysis(self, results: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """Enhance search results with profit calculations and market analysis"""
+        try:
+            if not results:
+                return results
+
+            enhanced_results = []
+
+            # Calculate market statistics for the entire result set
+            prices = []
+            for item in results:
+                try:
+                    price = float(item.get('price', 0))
+                    if price > 0:
+                        prices.append(price)
+                except (ValueError, TypeError):
+                    continue
+
+            if not prices:
+                return results
+
+            # Market statistics
+            avg_price = sum(prices) / len(prices)
+            min_price = min(prices)
+            max_price = max(prices)
+
+            # Enhance each item
+            for item in results:
+                enhanced_item = item.copy()
+
+                try:
+                    # Calculate profit estimates
+                    profit_data = self._calculate_profit_estimates(item, avg_price, min_price, max_price)
+                    enhanced_item.update(profit_data)
+
+                    # Update confidence score with market data
+                    enhanced_item['confidence'] = self._calculate_enhanced_confidence(
+                        item, len(results), avg_price
+                    )
+
+                except Exception as e:
+                    logger.warning(f"Error enhancing item {item.get('itemId', 'unknown')}: {str(e)}")
+
+                enhanced_results.append(enhanced_item)
+
+            return enhanced_results
+
+        except Exception as e:
+            logger.error(f"Error enhancing results: {str(e)}")
+            return results
+
+    def _calculate_profit_estimates(self, item: Dict[str, Any], avg_price: float, min_price: float, max_price: float) -> Dict[str, Any]:
+        """Calculate profit estimates for an item"""
+        try:
+            current_price = float(item.get('price', 0))
+            if current_price <= 0:
+                return {
+                    'estimated_profit': 0,
+                    'profit_margin': 0,
+                    'market_position': 'unknown'
+                }
+
+            # Platform fees (eBay + PayPal typical fees)
+            ebay_fee_rate = 0.10  # 10% eBay final value fee
+            paypal_fee_rate = 0.029  # 2.9% PayPal fee
+            shipping_cost = 10.0  # Estimated shipping cost
+
+            # Calculate total fees
+            total_fee_rate = ebay_fee_rate + paypal_fee_rate
+            platform_fees = current_price * total_fee_rate
+            total_costs = platform_fees + shipping_cost
+
+            # Estimate purchase price (assume buying at 30-50% of market value)
+            purchase_price_low = current_price * 0.3
+            purchase_price_high = current_price * 0.5
+
+            # Calculate profit estimates
+            profit_low = current_price - total_costs - purchase_price_high
+            profit_high = current_price - total_costs - purchase_price_low
+            estimated_profit = (profit_low + profit_high) / 2
+
+            # Calculate profit margin
+            profit_margin = (estimated_profit / current_price) * 100 if current_price > 0 else 0
+
+            # Determine market position
+            if current_price <= min_price * 1.1:
+                market_position = 'low'
+            elif current_price >= max_price * 0.9:
+                market_position = 'high'
+            elif abs(current_price - avg_price) / avg_price <= 0.2:
+                market_position = 'average'
+            else:
+                market_position = 'moderate'
+
+            return {
+                'estimated_profit': round(estimated_profit, 2),
+                'profit_margin': round(profit_margin, 1),
+                'market_position': market_position,
+                'platform_fees': round(platform_fees, 2),
+                'estimated_purchase_price': round((purchase_price_low + purchase_price_high) / 2, 2)
+            }
+
+        except Exception as e:
+            logger.warning(f"Error calculating profit estimates: {str(e)}")
+            return {
+                'estimated_profit': 0,
+                'profit_margin': 0,
+                'market_position': 'unknown'
+            }
+
+    def _calculate_enhanced_confidence(self, item: Dict[str, Any], total_results: int, avg_price: float) -> float:
+        """Calculate enhanced confidence score with market data"""
+        try:
+            base_confidence = item.get('confidence', 0.5)
+
+            # Factors that increase confidence
+            confidence_factors = []
+
+            # Market data availability
+            if total_results >= 10:
+                confidence_factors.append(0.1)  # Good market data
+            elif total_results >= 5:
+                confidence_factors.append(0.05)  # Moderate market data
+
+            # Price reasonableness
+            try:
+                price = float(item.get('price', 0))
+                if price > 0 and avg_price > 0:
+                    price_ratio = price / avg_price
+                    if 0.5 <= price_ratio <= 2.0:  # Price within reasonable range
+                        confidence_factors.append(0.1)
+            except (ValueError, TypeError):
+                pass
+
+            # Item condition
+            condition = item.get('condition', '').lower()
+            if condition in ['new', 'new with tags', 'new without tags']:
+                confidence_factors.append(0.1)
+            elif condition in ['excellent', 'very good', 'good']:
+                confidence_factors.append(0.05)
+
+            # Location (US items generally more reliable)
+            location = item.get('location', '').lower()
+            if 'united states' in location or 'usa' in location or 'us' in location:
+                confidence_factors.append(0.05)
+
+            # Calculate final confidence
+            enhanced_confidence = base_confidence + sum(confidence_factors)
+
+            # Cap at 1.0
+            return min(enhanced_confidence, 1.0)
+
+        except Exception as e:
+            logger.warning(f"Error calculating enhanced confidence: {str(e)}")
+            return item.get('confidence', 0.5)

@@ -2,14 +2,18 @@ from flask import jsonify, request, current_app, g
 from . import api_bp
 from services.ebay_service import EbayService
 from utils.rate_limiter import rate_limit
-from utils.security import InputValidation
+from utils.security import InputValidation, SecurityValidator
+from utils.auth_middleware import auth_optional, get_current_user
+from models.search_history import SearchHistory
 import logging
+from datetime import datetime
 
 # Set up logging
 logger = logging.getLogger(__name__)
 
 @api_bp.route('/search', methods=['POST'])
 @rate_limit('/api/search')
+@auth_optional
 @InputValidation.validate_search_input
 def search_items():
     """Search for items using eBay Finding API with enhanced security"""

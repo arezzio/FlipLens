@@ -1,6 +1,10 @@
-from flask import jsonify, request
+from flask import jsonify, request, g
 from . import api_bp
 from utils.rate_limiter import rate_limit
+from utils.auth_middleware import auth_required, get_current_user
+from models.saved_item import SavedItem
+from models.search_history import SearchHistory
+from models.database import db
 import logging
 import re
 from datetime import datetime
@@ -9,30 +13,55 @@ from werkzeug.exceptions import BadRequest
 # Set up logging
 logger = logging.getLogger(__name__)
 
-# Temporary in-memory storage (will be replaced with database in future tasks)
-saved_items_storage = {}
-
 @api_bp.route('/saved-items', methods=['GET'])
 @rate_limit('/api/saved-items')
+@auth_required
 def get_saved_items():
     """Get user's saved items"""
     try:
-        logger.info(f"GET saved items request from {request.remote_addr}")
-        
-        # TODO: Implement database integration
-        # This will be implemented in future tasks
-        
-        # For now, return all items from temporary storage
-        items = list(saved_items_storage.values())
-        
-        logger.info(f"Retrieved {len(items)} saved items")
-        
+        user = get_current_user()
+        logger.info(f"GET saved items request from user {user.username}")
+
+        # Get query parameters for filtering and pagination
+        page = request.args.get('page', 1, type=int)
+        per_page = min(request.args.get('per_page', 20, type=int), 100)  # Max 100 items per page
+        status = request.args.get('status')  # Filter by status
+        tag = request.args.get('tag')  # Filter by tag
+
+        # Build query
+        query = SavedItem.query.filter_by(user_id=user.id)
+
+        if status:
+            query = query.filter_by(status=status)
+
+        if tag:
+            query = query.filter(SavedItem.tags.contains(tag))
+
+        # Order by creation date (newest first)
+        query = query.order_by(SavedItem.created_at.desc())
+
+        # Paginate results
+        pagination = query.paginate(
+            page=page,
+            per_page=per_page,
+            error_out=False
+        )
+
+        items = [item.to_dict() for item in pagination.items]
+
+        logger.info(f"Retrieved {len(items)} saved items for user {user.username}")
+
         return jsonify({
             "items": items,
-            "total": len(items),
+            "total": pagination.total,
+            "page": page,
+            "per_page": per_page,
+            "pages": pagination.pages,
+            "has_next": pagination.has_next,
+            "has_prev": pagination.has_prev,
             "status": "success"
         }), 200
-        
+
     except Exception as e:
         logger.error(f"Error retrieving saved items: {str(e)}", exc_info=True)
         return jsonify({
@@ -44,10 +73,12 @@ def get_saved_items():
 
 @api_bp.route('/saved-items', methods=['POST'])
 @rate_limit('/api/saved-items')
+@auth_required
 def save_item():
     """Save an item to user's favorites"""
     try:
-        logger.info(f"POST save item request from {request.remote_addr}")
+        user = get_current_user()
+        logger.info(f"POST save item request from user {user.username}")
         
         # Check Content-Type
         if not request.is_json:
@@ -105,44 +136,38 @@ def save_item():
                 "code": "INVALID_ITEM_ID"
             }), 400
         
-        # Sanitize item_id
-        item_id = re.sub(r'[<>"\']', '', item_id)
-        
-        # Check if item already exists
-        if item_id in saved_items_storage:
-            logger.info(f"Item {item_id} already exists, updating")
-            return jsonify({
-                "error": "Item Already Saved",
-                "message": "Item already saved.",
-                "item_id": item_id,
-                "status": "error",
-                "code": "ITEM_ALREADY_SAVED"
-            }), 409
-        
-        # Create item object with timestamp
-        item = {
-            'id': item_id,
-            'title': data['title'][:200],  # Limit title length
-            'price': data['price'],
+        # Prepare item data for database
+        item_data = {
+            'ebay_item_id': str(data['item_id']).strip(),
+            'title': str(data['title']).strip()[:500],
+            'price': float(data['price']),
             'currency': data.get('currency', 'USD'),
             'image_url': data.get('image_url', ''),
             'item_url': data.get('item_url', ''),
             'condition': data.get('condition', 'Unknown'),
             'location': data.get('location', 'Unknown'),
-            'saved_at': datetime.utcnow().isoformat(),
-            'notes': data.get('notes', '')[:500]  # Limit notes length
+            'notes': data.get('notes', '')[:1000]
         }
-        
-        # Store item
-        saved_items_storage[item_id] = item
-        
-        logger.info(f"Item {item_id} saved successfully")
-        
-        return jsonify({
-            "message": "Item saved successfully",
-            "item": item,
-            "status": "success"
-        }), 201
+
+        # Create saved item
+        try:
+            saved_item = SavedItem.create_saved_item(user.id, item_data)
+
+            logger.info(f"Item {saved_item.ebay_item_id} saved successfully for user {user.username}")
+
+            return jsonify({
+                "message": "Item saved successfully",
+                "item": saved_item.to_dict(),
+                "status": "success"
+            }), 201
+
+        except ValueError as e:
+            return jsonify({
+                "error": "Item Already Saved",
+                "message": str(e),
+                "status": "error",
+                "code": "ITEM_ALREADY_SAVED"
+            }), 409
         
     except Exception as e:
         logger.error(f"Error saving item: {str(e)}", exc_info=True)
