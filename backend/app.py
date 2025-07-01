@@ -1,27 +1,18 @@
-from flask import Flask, jsonify, request
-from flask_cors import CORS
 import os
-from dotenv import load_dotenv
+import sys
 
-# Load environment variables
-load_dotenv()
+# Add the current directory to Python path for imports
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+try:
+    from __init__ import create_app
+except ImportError:
+    # Fallback import - this should work since we're in the same directory
+    import __init__
+    create_app = __init__.create_app
 
-@app.route('/')
-def home():
-    return jsonify({
-        "message": "FlipLens API is running",
-        "version": "1.0.0"
-    })
-
-@app.route('/api/health')
-def health_check():
-    return jsonify({
-        "status": "healthy",
-        "service": "FlipLens Backend"
-    })
+# Create the Flask application
+app = create_app()
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
