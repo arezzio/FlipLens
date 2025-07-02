@@ -24,7 +24,7 @@ def init_db(app):
         # Create tables if they don't exist
         with app.app_context():
             # Import all models to ensure they're registered
-            from . import user, saved_item, search_history
+            from . import user, saved_item, search_history, market_trend, portfolio_item, price_alert, user_settings
             
             # Create all tables
             db.create_all()

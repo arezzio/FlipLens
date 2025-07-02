@@ -5,6 +5,11 @@ import { SavedItems } from './components/SavedItems';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { AuthModal } from './components/auth/AuthModal';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import MarketTrends from './components/MarketTrends';
+import Portfolio from './components/Portfolio';
+import Alerts from './components/Alerts';
+import Profile from './components/Profile';
+import Settings from './components/Settings';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 
 const AppContent: React.FC = () => {
@@ -19,79 +24,127 @@ const AppContent: React.FC = () => {
 
   return (
     <Router>
-        {/* StockX-style Navigation Bar */}
-        <nav className="sticky top-0 z-50 bg-white border-b border-neutral-200 flex items-center justify-between px-4 sm:px-8 lg:px-16 h-20">
-          {/* Logo and Tagline */}
-          <Link to="/" className="flex items-center space-x-3 group">
-            <div className="w-10 h-10 bg-stockx-500 rounded-lg flex items-center justify-center transition-transform group-hover:scale-105">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-xl font-bold text-neutral-900 tracking-tight">FlipLens</span>
-              <span className="text-xs text-neutral-500 font-medium leading-tight">Find your next flip</span>
-            </div>
-          </Link>
-          {/* Navigation Links */}
-          <div className="flex-1 flex items-center justify-center space-x-8 xl:space-x-12">
-            <Link to="/" className="text-base font-medium text-neutral-700 hover:text-stockx-500 transition-colors">Search</Link>
-            <Link to="/saved" className="text-base font-medium text-neutral-700 hover:text-stockx-500 transition-colors">Saved Items</Link>
-            {/* Placeholders for future features */}
-            <button className="text-base font-medium text-neutral-400 hover:text-stockx-500 transition-colors cursor-not-allowed" disabled>Market</button>
-            <button className="text-base font-medium text-neutral-400 hover:text-stockx-500 transition-colors cursor-not-allowed" disabled>Portfolio</button>
-            <button className="text-base font-medium text-neutral-400 hover:text-stockx-500 transition-colors cursor-not-allowed" disabled>Alerts</button>
-            <button className="text-base font-medium text-neutral-400 hover:text-stockx-500 transition-colors cursor-not-allowed" disabled>Profile</button>
-            <button className="text-base font-medium text-neutral-400 hover:text-stockx-500 transition-colors cursor-not-allowed" disabled>Settings</button>
-          </div>
-          {/* Auth Buttons */}
-          <div className="ml-4 flex items-center space-x-3">
-            {isAuthenticated ? (
-              <div className="flex items-center space-x-3">
-                <span className="text-sm text-neutral-600">
-                  Welcome, {user?.first_name || user?.username}!
-                </span>
-                <button
-                  onClick={logout}
-                  className="px-4 py-2 text-neutral-700 hover:text-stockx-500 font-medium transition-colors"
-                >
-                  Sign Out
-                </button>
+      <div className="bg-neutral-50 min-h-screen">
+        {/* Navigation */}
+        <nav className="bg-white shadow-sm border-b border-neutral-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              {/* Logo */}
+              <div className="flex items-center">
+                <Link to="/" className="flex items-center">
+                  <div className="text-2xl font-bold text-blue-600">FlipLens</div>
+                </Link>
               </div>
-            ) : (
-              <>
-                <button
-                  onClick={() => handleAuthClick('login')}
-                  className="px-4 py-2 text-neutral-700 hover:text-stockx-500 font-medium transition-colors"
-                >
-                  Sign In
-                </button>
-                <button
-                  onClick={() => handleAuthClick('register')}
-                  className="px-6 py-2 rounded-lg bg-stockx-500 text-white font-semibold text-base shadow-stockx-md hover:bg-stockx-600 transition-colors"
-                >
-                  Get Started
-                </button>
-              </>
-            )}
+
+              {/* Navigation Links */}
+              <div className="hidden md:block">
+                <div className="ml-10 flex items-baseline space-x-4">
+                  <Link
+                    to="/"
+                    className="text-neutral-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  >
+                    Search
+                  </Link>
+                  <Link
+                    to="/saved"
+                    className="text-neutral-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  >
+                    Saved Items
+                  </Link>
+                  <Link
+                    to="/market-trends"
+                    className="text-neutral-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  >
+                    Market Trends
+                  </Link>
+                  <Link
+                    to="/portfolio"
+                    className="text-neutral-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  >
+                    Portfolio
+                  </Link>
+                  <Link
+                    to="/alerts"
+                    className="text-neutral-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  >
+                    Alerts
+                  </Link>
+                  {isAuthenticated && (
+                    <>
+                      <Link
+                        to="/profile"
+                        className="text-neutral-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                      >
+                        Profile
+                      </Link>
+                      <Link
+                        to="/settings"
+                        className="text-neutral-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                      >
+                        Settings
+                      </Link>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Auth Buttons */}
+              <div className="ml-4 flex items-center space-x-3">
+                {isAuthenticated ? (
+                  <div className="flex items-center space-x-3">
+                    <span className="text-sm text-neutral-600">
+                      Welcome, {user?.first_name || user?.username}!
+                    </span>
+                    <button
+                      onClick={logout}
+                      className="px-4 py-2 text-neutral-700 hover:text-blue-600 font-medium transition-colors"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => handleAuthClick('login')}
+                      className="px-4 py-2 text-neutral-700 hover:text-blue-600 font-medium transition-colors"
+                    >
+                      Sign In
+                    </button>
+                    <button
+                      onClick={() => handleAuthClick('register')}
+                      className="px-6 py-2 rounded-lg bg-blue-600 text-white font-semibold text-base shadow-md hover:bg-blue-700 transition-colors"
+                    >
+                      Get Started
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
         </nav>
-        {/* Main Content Area */}
-        <div className="min-h-screen bg-neutral-50 safe-area-padding">
+
+        {/* Main Content */}
+        <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
           <Routes>
             <Route path="/" element={<SearchScreen />} />
             <Route path="/saved" element={<SavedItems />} />
+            <Route path="/market-trends" element={<MarketTrends />} />
+            <Route path="/portfolio" element={<Portfolio />} />
+            <Route path="/alerts" element={<Alerts />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/settings" element={<Settings />} />
           </Routes>
-        </div>
+        </main>
+      </div>
 
-        {/* Auth Modal */}
-        <AuthModal
-          isOpen={authModalOpen}
-          onClose={() => setAuthModalOpen(false)}
-          initialMode={authMode}
-        />
-      </Router>
-    );
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        initialMode={authMode}
+      />
+    </Router>
+  );
 };
 
 function App() {

@@ -32,9 +32,30 @@ def search_items():
         
         logger.info(f"Processing search request: '{query}' (limit: {limit})")
 
+        # Track search start time
+        search_start_time = datetime.utcnow()
+
         # Perform search using enhanced eBay service
         ebay_service = EbayService()
         result = ebay_service.search_items(query, limit)
+
+        # Track search history if user is authenticated
+        user = get_current_user()
+        if user:
+            try:
+                search_record = SearchHistory.create_search_record(
+                    user_id=user.id,
+                    query=query,
+                    search_start_time=search_start_time,
+                    limit_requested=limit
+                )
+
+                # Analyze results if we got any
+                if result.get('results'):
+                    search_record.analyze_results(result['results'])
+
+            except Exception as e:
+                logger.warning(f"Failed to record search history: {str(e)}")
 
         # Check for service errors
         if 'error' in result:
