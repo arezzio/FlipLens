@@ -5,6 +5,11 @@ import { SavedItems } from './components/SavedItems';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { AuthModal } from './components/auth/AuthModal';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import MarketTrends from './components/MarketTrends';
+import Portfolio from './components/Portfolio';
+import Alerts from './components/Alerts';
+import Profile from './components/Profile';
+import Settings from './components/Settings';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 
 const AppContent: React.FC = () => {
@@ -46,6 +51,40 @@ const AppContent: React.FC = () => {
                   >
                     Saved Items
                   </Link>
+                  <Link
+                    to="/market-trends"
+                    className="text-neutral-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  >
+                    Market Trends
+                  </Link>
+                  <Link
+                    to="/portfolio"
+                    className="text-neutral-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  >
+                    Portfolio
+                  </Link>
+                  <Link
+                    to="/alerts"
+                    className="text-neutral-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  >
+                    Alerts
+                  </Link>
+                  {isAuthenticated && (
+                    <>
+                      <Link
+                        to="/profile"
+                        className="text-neutral-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                      >
+                        Profile
+                      </Link>
+                      <Link
+                        to="/settings"
+                        className="text-neutral-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                      >
+                        Settings
+                      </Link>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -89,6 +128,11 @@ const AppContent: React.FC = () => {
           <Routes>
             <Route path="/" element={<SearchScreen />} />
             <Route path="/saved" element={<SavedItems />} />
+            <Route path="/market-trends" element={<MarketTrends />} />
+            <Route path="/portfolio" element={<Portfolio />} />
+            <Route path="/alerts" element={<Alerts />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/settings" element={<Settings />} />
           </Routes>
         </main>
       </div>

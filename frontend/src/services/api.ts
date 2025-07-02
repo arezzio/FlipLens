@@ -193,7 +193,42 @@ apiClient.interceptors.response.use(
   }
 );
 
+// Generic HTTP methods
+const makeRequest = async (method: string, url: string, data?: any, config?: any) => {
+  return retryRequest(async () => {
+    switch (method.toUpperCase()) {
+      case 'GET':
+        return await apiClient.get(url, config);
+      case 'POST':
+        return await apiClient.post(url, data, config);
+      case 'PUT':
+        return await apiClient.put(url, data, config);
+      case 'DELETE':
+        return await apiClient.delete(url, { ...config, data });
+      default:
+        throw new Error(`Unsupported HTTP method: ${method}`);
+    }
+  });
+};
+
 export const apiService = {
+  // Generic HTTP methods
+  get: async (url: string, config?: any) => {
+    return makeRequest('GET', url, null, config);
+  },
+
+  post: async (url: string, data?: any, config?: any) => {
+    return makeRequest('POST', url, data, config);
+  },
+
+  put: async (url: string, data?: any, config?: any) => {
+    return makeRequest('PUT', url, data, config);
+  },
+
+  delete: async (url: string, data?: any, config?: any) => {
+    return makeRequest('DELETE', url, data, config);
+  },
+
   // Search endpoints
   searchItems: async (query: string, limit: number = 20): Promise<SearchResponse> => {
     const cacheKey = `search_${query}_${limit}`;
@@ -395,6 +430,20 @@ export const apiService = {
   logout: async (): Promise<any> => {
     return retryRequest(async () => {
       const response = await apiClient.post('/auth/logout');
+      return response.data;
+    });
+  },
+
+  refreshToken: async (): Promise<any> => {
+    return retryRequest(async () => {
+      const response = await apiClient.post('/auth/refresh');
+      return response.data;
+    });
+  },
+
+  getHealth: async (): Promise<{ status: string; service: string; version: string }> => {
+    return retryRequest(async () => {
+      const response = await apiClient.get('/health');
       return response.data;
     });
   },
